@@ -29,7 +29,7 @@ class CurrencyConverter:
             os.mkdir("data")
 
         if not self.try_update_currencies(): # Currency data loading
-            self.convertions = self.__load_snapshot("data/currencies_snapshot.json", "currencies")
+            self.currencies = self.__load_snapshot("data/currencies_snapshot.json", "currencies")
         if not self.try_update_convertions(): # Convertion data loading
             self.convertions = self.__load_snapshot("data/convertions_snapshot.json", "convertions")
 
