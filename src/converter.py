@@ -50,7 +50,6 @@ class CurrencyConverter:
             snapshot_datetime = None
 
             with open(snapshot_path, 'r') as fp:
-                curr_time = datetime.datetime.now()
                 snapshot = json.load(fp)
                 snapshot_datetime = datetime.datetime.fromisoformat(snapshot["datetime"])
                 fp.close()
@@ -69,20 +68,12 @@ class CurrencyConverter:
         
         # At this point, the snapshot file must be available.
 
-        """ 
-        with open(snapshot_path, 'r') as fp:
-            json_body = json.load(fp)
-            fetched_data = copy(json_body[data_name])
-            fp.close() 
-        """
-
         fetched_data = self.__load_snapshot(snapshot_path, data_name)
 
         return fetched_data
 
-    def __is_currency_registered(self, cntry: str) -> bool:
-        currencies = self.list_currencies()
-        if cntry in currencies:
+    def __country_conv_exists(self, cntry: str) -> bool:
+        if ("USD" + cntry) in list(self.convertions.keys()):
             return True
         return False
 
@@ -121,16 +112,14 @@ class CurrencyConverter:
             fp.close()
         pass
 
-    def get_convertion(self, currency: str):
-        return 1.0 if currency == 'USD' else self.convertions[("USD" + currency)]
-
     def convert(self, ammount: float, from_cntry: str, to_cntry) -> Union[float, None]: # Currency convertions
-        if self.__is_currency_registered(from_cntry) and self.__is_currency_registered(to_cntry):
-            return ammount * self.get_convertion(to_cntry) / self.get_convertion(from_cntry)
+        if self.__country_conv_exists(from_cntry) and self.__country_conv_exists(to_cntry):
+            return ammount * self.convertions[("USD" + to_cntry)]\
+                           / self.convertions[("USD" + from_cntry)]
         return None
 
     def list_currencies(self) -> List[str]: # Available currencies listing
-        return list(self.currencies.keys())
+        return list(self.currencies)
 
     def list_countries(self) -> List[str]:
         return list(self.currencies.values())

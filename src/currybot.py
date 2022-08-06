@@ -44,9 +44,11 @@ class CurryBot(discord.Client):
 
         ITEMS_PER_PAGE = 10
 
+        currencies_pages = []
+
         for i in range(len(cntrys)):
             if i != 0 and i % ITEMS_PER_PAGE == 0:
-                self.currencies_pages.append({ "fields": [flags_field.to_dict(),\
+                currencies_pages.append({ "fields": [flags_field.to_dict(),\
                     names_field.to_dict(),codes_field.to_dict()] })
 
                 flags_field.value = ""
@@ -61,7 +63,7 @@ class CurryBot(discord.Client):
             self.currencies_pages.append({ "fields": [flags_field.to_dict(),\
                 names_field.to_dict(),codes_field.to_dict()] })
 
-        self.currencies_book = BookEmbed(self.currencies_pages, title="Currencies", 
+        self.currencies_book = BookEmbed(currencies_pages, title="Currencies", 
                                          colour=0x00e3b6, description="Available currencies.")
 
     async def __send_error(self, msg: str, message: discord.Message) -> None:
@@ -88,12 +90,8 @@ class CurryBot(discord.Client):
         print("{0} is online.".format(self.user))
 
     async def on_message(self, message):
-        if message.author != self.user: # Don't do processing on own messages.
-            if len(message.content) < 1: # If the message ever happens to be empty, don't interpret it.
-                return                   # Note: This happened one, but I suppose it happened because
-                                         # the deletetion of a message.
-
-            if message.content[0] == '!': # All commands start with the control character '!'.
+        if message.author != self.user: # Don't do processing on own messages
+            if message.content[0] == '!': # All commands start with the control character '!'
                 keywords = message.content[1:].split(' ')
                 
                 command = keywords[0]
@@ -114,7 +112,7 @@ class CurryBot(discord.Client):
                                 if args[3] == 'to':
                                     to_cntry = args[4]
                                     self.converter.try_update_convertions()
-                                    success = await self.__send_convertion(ammount, from_cntry.upper(), to_cntry.upper(), message)
+                                    success = await self.__send_convertion(ammount, from_cntry, to_cntry, message)
                                     if success == False: # Err: invalid currency code
                                         await self.__send_error("invalid currency code.", message)
                                 else: # Err: expected keyword "to"
