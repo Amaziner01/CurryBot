@@ -72,10 +72,8 @@ class CurrencyConverter:
 
         return fetched_data
 
-    def __country_conv_exists(self, cntry: str) -> bool:
-        if ("USD" + cntry) in list(self.convertions.keys()):
-            return True
-        return False
+    def __if_currency_exists(self, cntry: str) -> bool:
+        return cntry in self.list_currencies()
 
     def __fetch_conversions(self) -> dict:
         url = "https://api.apilayer.com/currency_data/live?source=USD&currencies="
@@ -112,14 +110,16 @@ class CurrencyConverter:
             fp.close()
         pass
 
+    def get_convertion(self, currency: str):
+        return 1.0 if currency == 'USD' else self.convertions['USD' + currency]
+
     def convert(self, ammount: float, from_cntry: str, to_cntry) -> Union[float, None]: # Currency convertions
-        if self.__country_conv_exists(from_cntry) and self.__country_conv_exists(to_cntry):
-            return ammount * self.convertions[("USD" + to_cntry)]\
-                           / self.convertions[("USD" + from_cntry)]
+        if self.__if_currency_exists(from_cntry) and self.__if_currency_exists(to_cntry):
+            return ammount * self.get_convertion(to_cntry) / self.get_convertion(from_cntry)
         return None
 
     def list_currencies(self) -> List[str]: # Available currencies listing
-        return list(self.currencies)
+        return list(self.currencies.keys())
 
     def list_countries(self) -> List[str]:
         return list(self.currencies.values())
