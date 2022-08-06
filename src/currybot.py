@@ -88,8 +88,12 @@ class CurryBot(discord.Client):
         print("{0} is online.".format(self.user))
 
     async def on_message(self, message):
-        if message.author != self.user: # Don't do processing on own messages
-            if message.content[0] == '!': # All commands start with the control character '!'
+        if message.author != self.user: # Don't do processing on own messages.
+            if len(message.content) < 1: # If the message ever happens to be empty, don't interpret it.
+                return                   # Note: This happened one, but I suppose it happened because
+                                         # the deletetion of a message.
+
+            if message.content[0] == '!': # All commands start with the control character '!'.
                 keywords = message.content[1:].split(' ')
                 
                 command = keywords[0]
@@ -110,7 +114,7 @@ class CurryBot(discord.Client):
                                 if args[3] == 'to':
                                     to_cntry = args[4]
                                     self.converter.try_update_convertions()
-                                    success = await self.__send_convertion(ammount, from_cntry, to_cntry, message)
+                                    success = await self.__send_convertion(ammount, from_cntry.upper(), to_cntry.upper(), message)
                                     if success == False: # Err: invalid currency code
                                         await self.__send_error("invalid currency code.", message)
                                 else: # Err: expected keyword "to"
