@@ -1,6 +1,7 @@
 from bookembed import BookEmbed, EmbedField
 from converter import CurrencyConverter
 import discord
+import math
 
 from typing import Any, TypeVar
 
@@ -13,8 +14,13 @@ def emoji_flag(text: str):
 
 #T = TypeVar("T")
 def try_convert_to_float(a: Any) -> float: # Try convert value to floating point.
-    try: return float(a)
-    except: return None
+    try: 
+        n = float(a)
+        if n in [float('inf'), 0.0] or n < 0 or math.isnan(n):
+            return None
+        return n
+    except: 
+        return None
 
 class CurryBot(discord.Client):
     def __init__(self, currency_apikey: str, *, loop=None, **options):
@@ -121,7 +127,7 @@ class CurryBot(discord.Client):
                             else: # Err: expected keyword "from"
                                 await self.__send_error("Expected keyword \"from\".", message)
                         else: # Err: Arg was not a number
-                            await self.__send_error("Invalid ammount.", message)
+                            await self.__send_error("Invalid amount.", message)
                     else: # Err: No arguments were added
                         await self.__send_error("Expected arguments.", message)
                 
